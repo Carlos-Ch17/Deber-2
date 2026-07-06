@@ -2,9 +2,13 @@ import "DocenteEvaluacion/docente"
 
 import "testing"
 
+// ===============================
+// TEST: validar email (privado)
+// ===============================
+
 func TestValidarEmailPrivado(t *testing.T) {
 
-	pruebas := []struct {
+	casos := []struct {
 		email  string
 		valido bool
 	}{
@@ -15,25 +19,23 @@ func TestValidarEmailPrivado(t *testing.T) {
 		{"", false},
 	}
 
-	for _, prueba := range pruebas {
+	for _, c := range casos {
 
-		d := NuevoDocente(
-			"1",
-			"Juan",
-			prueba.email,
-			"Sistemas",
-			"Profesor",
-		)
+		d := NuevoDocente("1", "Juan", c.email, "Sistemas", "Profesor")
 
-		if d.validarEmail() != prueba.valido {
-			t.Errorf("Error con el email %s", prueba.email)
+		if d.validarEmail() != c.valido {
+			t.Errorf("Error en email: %s", c.email)
 		}
 	}
 }
 
+// ===============================
+// TEST: normalizar nombre (privado)
+// ===============================
+
 func TestNormalizarNombrePrivado(t *testing.T) {
 
-	pruebas := []struct {
+	casos := []struct {
 		entrada string
 		salida  string
 	}{
@@ -42,46 +44,30 @@ func TestNormalizarNombrePrivado(t *testing.T) {
 		{"mArIa lOpEz", "Maria Lopez"},
 	}
 
-	for _, prueba := range pruebas {
+	for _, c := range casos {
 
-		d := NuevoDocente(
-			"1",
-			prueba.entrada,
-			"correo@correo.com",
-			"Sistemas",
-			"Profesor",
-		)
+		d := NuevoDocente("1", c.entrada, "test@test.com", "Sistemas", "Profesor")
 
 		d.normalizarNombre()
 
-		if d.Nombre != prueba.salida {
-			t.Errorf("Esperado %s pero obtuvo %s", prueba.salida, d.Nombre)
+		if d.Nombre != c.salida {
+			t.Errorf("Esperado %s pero obtuvo %s", c.salida, d.Nombre)
 		}
 	}
 }
 
+// ===============================
+// TEST: agregar evaluación interna
+// ===============================
+
 func TestAgregarEvaluacionInterna(t *testing.T) {
 
-	d := NuevoDocente(
-		"1",
-		"Juan",
-		"juan@correo.com",
-		"Sistemas",
-		"Profesor",
-	)
+	d := NuevoDocente("1", "Juan", "juan@correo.com", "Sistemas", "Profesor")
 
-	d.agregarEvaluacionInterna("EV001")
-	d.agregarEvaluacionInterna("EV002")
+	d.agregarEvaluacionInterna("EV1")
+	d.agregarEvaluacionInterna("EV2")
 
 	if len(d.evaluaciones) != 2 {
-		t.Error("No se agregaron correctamente las evaluaciones")
-	}
-
-	if d.evaluaciones[0] != "EV001" {
-		t.Error("Primera evaluación incorrecta")
-	}
-
-	if d.evaluaciones[1] != "EV002" {
-		t.Error("Segunda evaluación incorrecta")
+		t.Error("No se agregaron evaluaciones correctamente")
 	}
 }

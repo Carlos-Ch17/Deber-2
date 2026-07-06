@@ -2,7 +2,8 @@ import "DocenteEvaluacion/docente"
 
 import (
 	"strings"
-	"unicode"
+
+	"DocenteEvaluacion/evaluacion"
 )
 
 type Docente struct {
@@ -11,10 +12,14 @@ type Docente struct {
 	Email        string
 	Departamento string
 	Cargo        string
-	evaluaciones []string
+
+	evaluaciones []evaluacion.Evaluacion
 }
 
-// Constructor público
+// =======================
+// Constructor
+// =======================
+
 func NuevoDocente(id, nombre, email, depto, cargo string) *Docente {
 	return &Docente{
 		ID:           id,
@@ -22,11 +27,13 @@ func NuevoDocente(id, nombre, email, depto, cargo string) *Docente {
 		Email:        email,
 		Departamento: depto,
 		Cargo:        cargo,
-		evaluaciones: []string{},
+		evaluaciones: []evaluacion.Evaluacion{},
 	}
 }
 
+// =======================
 // Métodos públicos
+// =======================
 
 func (d *Docente) GetID() string {
 	return d.ID
@@ -48,33 +55,61 @@ func (d *Docente) GetCargo() string {
 	return d.Cargo
 }
 
-// Métodos privados
-
-func (d *Docente) validarEmail() bool {
-	email := strings.TrimSpace(d.Email)
-
-	return strings.Contains(email, "@") &&
-		strings.Contains(email, ".")
+// Agregar evaluación (público)
+func (d *Docente) AgregarEvaluacion(eval evaluacion.Evaluacion) {
+	if d.validarEvaluacion(eval) {
+		d.evaluaciones = append(d.evaluaciones, eval)
+	}
 }
 
-func (d *Docente) normalizarNombre() {
-	nombre := strings.ToLower(strings.TrimSpace(d.Nombre))
+// Obtener solo evaluaciones finalizadas
+func (d *Docente) ObtenerEvaluaciones() []evaluacion.Evaluacion {
 
-	palabras := strings.Fields(nombre)
+	var finalizadas []evaluacion.Evaluacion
 
-	for i, palabra := range palabras {
-		r := []rune(palabra)
-
-		if len(r) > 0 {
-			r[0] = unicode.ToUpper(r[0])
+	for _, e := range d.evaluaciones {
+		if e.EstaFinalizada() {
+			finalizadas = append(finalizadas, e)
 		}
-
-		palabras[i] = string(r)
 	}
 
-	d.Nombre = strings.Join(palabras, " ")
+	return finalizadas
 }
 
-func (d *Docente) agregarEvaluacionInterna(idEvaluacion string) {
-	d.evaluaciones = append(d.evaluaciones, idEvaluacion)
+// =======================
+// Métodos privados
+// =======================
+
+// validar email simple
+func (d *Docente) validarEmail() bool {
+	email := strings.TrimSpace(d.Email)
+	return strings.Contains(email, "@") && strings.Contains(email, ".")
+}
+
+// normalizar nombre
+func (d *Docente) normalizarNombre() {
+	d.Nombre = strings.Title(strings.ToLower(strings.TrimSpace(d.Nombre)))
+}
+
+// validar evaluación
+func (d *Docente) validarEvaluacion(eval evaluacion.Evaluacion) bool {
+
+	if eval.ID == "" {
+		return false
+	}
+
+	if eval.DocenteID != d.ID {
+		return false
+	}
+
+	return true
+}
+
+// agregar evaluación interna (opcional según práctica)
+func (d *Docente) agregarEvaluacionInterna(id string) {
+	// ejemplo simple
+	d.evaluaciones = append(d.evaluaciones, evaluacion.Evaluacion{
+		ID:        id,
+		DocenteID: d.ID,
+	})
 }
